@@ -74,15 +74,24 @@ export default {
 
   async mounted() {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("user_token");
       const decoded = JSON.parse(atob(token.split(".")[1])); // Lấy info từ JWT
+      console.log("decoded", decoded);
 
       // Gọi API lấy thông tin độc giả theo MADOCGIA
       const res = await axios.get(
-        `http://localhost:3000/api/get-docgia?madocgia=${decoded.id}`
+        `http://localhost:3000/api/get-detail-docgia?madocgia=${decoded.id}`
       );
+      console.log("res.data", res.data);
 
-      this.user = res.data.data;
+      const data = res.data.data;
+
+      // Convert ISO date → yyyy-MM-dd
+      if (data.NGAYSINH) {
+        data.NGAYSINH = data.NGAYSINH.split("T")[0];
+      }
+
+      this.user = data;
     } catch (err) {
       console.error("Lỗi tải thông tin:", err);
     }
