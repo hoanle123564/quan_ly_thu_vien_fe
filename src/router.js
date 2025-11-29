@@ -6,6 +6,11 @@ import HomeUser from "./views/User/HomeUser.vue";
 import LoginAdmin from "./views/Admin/LoginAdmin.vue";
 import HomeAdmin from "./views/Admin/HomeAdmin.vue";
 import DetailUser from "./views/User/ThongTinUser.vue";
+import ListBook from "./views/User/ListBook.vue";
+import TraSach from "./views/User/TraSach.vue";
+import LichSuMuon from "./views/User/LichSuMuon.vue";
+import AdminQuanLySach from "./views/Admin/AdminQuanLySach.vue";
+import nxb from "./views/Admin/AdminNXB.vue";
 // import store from "./store";
 
 const routes = [
@@ -15,10 +20,15 @@ const routes = [
   { path: "/user/register", component: RegisterUser },
   { path: "/user/home", component: HomeUser },
   { path: "/user/thong-tin", component: DetailUser },
+  { path: "/user/muon-sach", component: ListBook },
+  { path: "/user/tra-sach", component: TraSach },
+  { path: "/user/lich-su", component: LichSuMuon },
 
   // ADMIN ZONE
   { path: "/admin/login", component: LoginAdmin },
   { path: "/admin/dashboard", component: HomeAdmin },
+  { path: "/admin/books", component: AdminQuanLySach },
+  { path: "/admin/nxb", component: nxb },
 ];
 
 const router = createRouter({
@@ -27,21 +37,31 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const role = localStorage.getItem("role");
-  const token = localStorage.getItem("token");
+  let token = null;
+  let role = null;
 
-  // ADMIN PROTECTED ROUTE
-  if (to.path.startsWith("/admin") && to.path !== "/admin/login") {
-    if (role !== "admin" || !token) return next("/admin/login");
+  // Nếu vào admin
+  if (to.path.startsWith("/admin")) {
+    token = localStorage.getItem("admin_token");
+    role = localStorage.getItem("admin_role");
+
+    if (to.path !== "/admin/login" && (!token || role !== "admin")) {
+      return next("/admin/login");
+    }
   }
 
-  // USER PROTECTED ROUTE
-  if (
-    to.path.startsWith("/user") &&
-    to.path !== "/user/login" &&
-    to.path !== "/user/register"
-  ) {
-    if (role !== "user" || !token) return next("/user/login");
+  // Nếu vào user
+  if (to.path.startsWith("/user")) {
+    token = localStorage.getItem("user_token");
+    role = localStorage.getItem("user_role");
+
+    if (
+      to.path !== "/user/login" &&
+      to.path !== "/user/register" &&
+      (!token || role !== "user")
+    ) {
+      return next("/user/login");
+    }
   }
 
   next();
