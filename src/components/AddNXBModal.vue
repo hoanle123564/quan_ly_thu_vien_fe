@@ -1,84 +1,33 @@
 <template>
   <div class="modal" v-if="show">
     <div class="modal-box">
-      <h3>Thêm sách mới</h3>
+      <h3>{{ isEdit ? "Chỉnh sửa Nhà Xuất Bản" : "Thêm Nhà Xuất Bản" }}</h3>
 
       <!-- THÔNG BÁO CHUNG -->
       <p v-if="formMessage" :class="['form-message', formMessageType]">
         {{ formMessage }}
       </p>
 
-      <!-- INPUT TÊN SÁCH -->
+      <!-- TÊN NHÀ XUẤT BẢN -->
       <div class="field">
         <input
-          v-model="form.TENSACH"
-          placeholder="Tên sách"
-          :class="{ 'error-input': errors.TENSACH }"
+          v-model="localForm.TENNXB"
+          placeholder="Tên nhà xuất bản"
+          :class="{ 'error-input': errors.TenNXB }"
         />
-        <p v-if="errors.TENSACH" class="error-text">{{ errors.TENSACH }}</p>
+        <p v-if="errors.TenNXB" class="error-text">{{ errors.TenNXB }}</p>
       </div>
 
-      <!-- TÁC GIẢ -->
+      <!-- ĐỊA CHỈ -->
       <div class="field">
         <input
-          v-model="form.TACGIA"
-          placeholder="Tác giả"
-          :class="{ 'error-input': errors.TACGIA }"
+          v-model="localForm.DIACHI"
+          placeholder="Địa chỉ"
+          :class="{ 'error-input': errors.DiaChi }"
         />
-        <p v-if="errors.TACGIA" class="error-text">{{ errors.TACGIA }}</p>
+        <p v-if="errors.DiaChi" class="error-text">{{ errors.DiaChi }}</p>
       </div>
 
-      <!-- GIÁ, SỐ QUYỂN -->
-      <div class="grid">
-        <div class="field">
-          <input
-            v-model.number="form.DONGIA"
-            type="number"
-            placeholder="Đơn giá (≥ 1000)"
-            @input="validate"
-            :class="{ 'error-input': errors.DONGIA }"
-          />
-          <p v-if="errors.DONGIA" class="error-text">{{ errors.DONGIA }}</p>
-        </div>
-
-        <div class="field">
-          <input
-            v-model.number="form.SOQUYEN"
-            type="number"
-            placeholder="Số quyển (≥ 0)"
-            @input="validate"
-            :class="{ 'error-input': errors.SOQUYEN }"
-          />
-          <p v-if="errors.SOQUYEN" class="error-text">{{ errors.SOQUYEN }}</p>
-        </div>
-      </div>
-
-      <!-- NĂM XB -->
-      <div class="field">
-        <input
-          v-model.number="form.NAMXUATBAN"
-          type="number"
-          placeholder="Năm xuất bản (≥ 1900)"
-          @input="validate"
-          :class="{ 'error-input': errors.NAMXUATBAN }"
-        />
-        <p v-if="errors.NAMXUATBAN" class="error-text">
-          {{ errors.NAMXUATBAN }}
-        </p>
-      </div>
-
-      <!-- NHÀ XUẤT BẢN -->
-      <div class="field">
-        <select v-model="form.MANXB">
-          <option value="">-- Chọn NXB --</option>
-          <option v-for="n in nxbList" :key="n.MANXB" :value="n.MANXB">
-            {{ n.TENNXB }}
-          </option>
-        </select>
-        <p v-if="errors.MANXB" class="error-text">{{ errors.MANXB }}</p>
-      </div>
-
-      <!-- BUTTONS -->
       <div class="modal-actions">
         <button class="save-btn" @click="submit">Lưu</button>
         <button class="cancel-btn" @click="$emit('close')">Hủy</button>
@@ -88,52 +37,58 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
-  props: { show: Boolean },
+  props: {
+    show: Boolean,
+    isEdit: Boolean,
+    formData: Object,
+  },
 
   data() {
     return {
-      nxbList: [],
-
-      form: {
-        TENSACH: "",
-        TACGIA: "",
-        DONGIA: "",
-        SOQUYEN: "",
-        NAMXUATBAN: "",
-        MANXB: "",
+      localForm: {
+        TENNXB: "",
+        DIACHI: "",
       },
-
       errors: {},
       formMessage: "",
       formMessageType: "",
     };
   },
 
-  async mounted() {
-    const res = await axios.get("http://localhost:3000/api/get-all-NXB");
-    this.nxbList = res.data.data;
+  watch: {
+    formData: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          this.localForm = {
+            MANXB: val.MANXB || "",
+            TENNXB: val.TenNXB || val.TENNXB || "",
+            DIACHI: val.DiaChi || val.DIACHI || "",
+          };
+        } else {
+          this.localForm = {
+            TENNXB: "",
+            DIACHI: "",
+          };
+        }
+        this.errors = {};
+        this.formMessage = "";
+      },
+    },
   },
 
   methods: {
     validate() {
       this.errors = {};
 
-      if (!this.form.TENSACH.trim())
-        this.errors.TENSACH = "Không được để trống";
-      if (!this.form.TACGIA.trim()) this.errors.TACGIA = "Không được để trống";
+      if (!this.localForm.TENNXB || !this.localForm.TENNXB.trim()) {
+        this.errors.TenNXB = "Tên nhà xuất bản không được để trống";
+      }
 
-      if (!this.form.DONGIA || this.form.DONGIA < 1000)
-        this.errors.DONGIA = "Đơn giá phải ≥ 1000";
-
-      if (this.form.SOQUYEN < 0) this.errors.SOQUYEN = "Số quyển không được âm";
-
-      if (!this.form.NAMXUATBAN || this.form.NAMXUATBAN < 1900)
-        this.errors.NAMXUATBAN = "Năm xuất bản phải ≥ 1900";
-
-      if (!this.form.MANXB) this.errors.MANXB = "Vui lòng chọn nhà xuất bản";
+      if (!this.localForm.DIACHI || !this.localForm.DIACHI.trim()) {
+        this.errors.DiaChi = "Địa chỉ không được để trống";
+      }
 
       return Object.keys(this.errors).length === 0;
     },
@@ -145,13 +100,8 @@ export default {
         return;
       }
 
-      this.$emit("submit", {
-        ...this.form,
-        DONGIA: Number(this.form.DONGIA),
-        SOQUYEN: Number(this.form.SOQUYEN),
-        NAMXUATBAN: Number(this.form.NAMXUATBAN),
-        MANXB: Number(this.form.MANXB),
-      });
+      this.$emit("save", this.localForm);
+      this.formMessage = "";
     },
   },
 };
@@ -165,50 +115,62 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(2px);
 }
 
 .modal-box {
   width: 480px;
-  background: white;
-  padding: 28px;
-  border-radius: 14px;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+h3 {
+  margin-bottom: 22px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2b2d42;
 }
 
-/* Input / Select */
-.field input,
-.field select {
+.field {
+  margin-bottom: 16px;
+}
+
+input {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 4px;
+  height: 46px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d4d7e1;
+  background: #f9fbff;
   font-size: 15px;
+  box-sizing: border-box;
+  transition: 0.2s;
 }
 
-/* Error style */
+input:focus {
+  border-color: #4f7eff;
+  box-shadow: 0 0 0 2px rgba(79, 126, 255, 0.2);
+  outline: none;
+}
+
 .error-input {
-  border: 1px solid #ff4d4d !important;
+  border-color: #ff4d4d !important;
 }
 
 .error-text {
   color: #ff3333;
   font-size: 13px;
-  margin-bottom: 10px;
+  margin-top: 4px;
 }
 
-/* Message */
 .form-message {
   text-align: center;
   padding: 10px;
   border-radius: 8px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .form-message.error {
@@ -217,27 +179,39 @@ export default {
   color: #c62828;
 }
 
-/* Buttons */
 .modal-actions {
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 12px;
 }
 
 .save-btn {
   background: #4caf50;
   color: white;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  background: #45a049;
 }
 
 .cancel-btn {
-  background: #bbb;
+  background: #9b9b9b;
   color: white;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #858585;
 }
 </style>
