@@ -3,35 +3,70 @@
     <div class="modal-box">
       <h3>Thêm sách mới</h3>
 
-      <input v-model="form.TENSACH" placeholder="Tên sách" />
-      <input v-model="form.TACGIA" placeholder="Tác giả" />
+      <!-- TÊN + TÁC GIẢ -->
+      <div class="grid-2">
+        <input v-model="form.TENSACH" placeholder="Tên sách" />
+        <input v-model="form.TACGIA" placeholder="Tác giả" />
+      </div>
 
-      <input
-        type="number"
-        v-model="form.DONGIA"
-        min="1000"
-        placeholder="Đơn giá"
-      />
-      <input
-        type="number"
-        v-model="form.SOQUYEN"
-        min="0"
-        placeholder="Số quyển"
-      />
-      <input
-        type="number"
-        v-model="form.NAMXUATBAN"
-        min="1900"
-        placeholder="Năm xuất bản"
-      />
+      <!-- ĐƠN GIÁ + SỐ QUYỂN -->
+      <div class="grid-2">
+        <div>
+          <input
+            type="number"
+            v-model="form.DONGIA"
+            placeholder="Đơn giá (≥ 1000)"
+            @input="validatePrice"
+            :class="{ 'error-input': errors.DONGIA }"
+          />
+          <p class="error-text" v-if="errors.DONGIA">{{ errors.DONGIA }}</p>
+        </div>
 
-      <select v-model="form.MANXB">
-        <option disabled value="">-- Chọn NXB --</option>
-        <option v-for="n in nxbList" :key="n.MANXB" :value="n.MANXB">
-          {{ n.TENNXB }}
-        </option>
-      </select>
+        <div>
+          <input
+            type="number"
+            v-model="form.SOQUYEN"
+            placeholder="Số quyển (≥ 0)"
+            @input="validateSoQuyen"
+            :class="{ 'error-input': errors.SOQUYEN }"
+          />
+          <p class="error-text" v-if="errors.SOQUYEN">{{ errors.SOQUYEN }}</p>
+        </div>
+      </div>
 
+      <!-- NĂM XUẤT BẢN + NXB -->
+      <div class="grid-2">
+        <div>
+          <input
+            type="number"
+            v-model="form.NAMXUATBAN"
+            placeholder="Năm xuất bản (≥ 1900)"
+            @input="validateNamXB"
+            :class="{ 'error-input': errors.NAMXUATBAN }"
+          />
+          <p class="error-text" v-if="errors.NAMXUATBAN">
+            {{ errors.NAMXUATBAN }}
+          </p>
+        </div>
+
+        <div>
+          <select v-model="form.MANXB">
+            <option disabled value="">-- Chọn NXB --</option>
+            <option v-for="n in nxbList" :key="n.MANXB" :value="n.MANXB">
+              {{ n.TENNXB }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ẢNH BASE64 -->
+      <div class="field">
+        <label>Ảnh sách:</label>
+        <input type="file" accept="image/*" @change="toBase64" />
+        <img v-if="form.ANH" :src="form.ANH" class="preview-img" />
+      </div>
+
+      <!-- BUTTON -->
       <div class="modal-actions">
         <button class="save-btn" @click="submit">Lưu</button>
         <button class="cancel-btn" @click="$emit('close')">Hủy</button>
@@ -49,6 +84,7 @@ export default {
   data() {
     return {
       nxbList: [],
+
       form: {
         TENSACH: "",
         TACGIA: "",
@@ -56,7 +92,10 @@ export default {
         SOQUYEN: "",
         NAMXUATBAN: "",
         MANXB: "",
+        ANH: "",
       },
+
+      errors: {},
     };
   },
 
@@ -66,18 +105,53 @@ export default {
   },
 
   methods: {
+    resetForm() {
+      this.form = {
+        TENSACH: "",
+        TACGIA: "",
+        DONGIA: "",
+        SOQUYEN: "",
+        NAMXUATBAN: "",
+        MANXB: "",
+        ANH: "",
+      };
+      this.errors = {};
+    },
+    toBase64(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        this.form.ANH = reader.result; // base64
+      };
+
+      if (file) reader.readAsDataURL(file);
+    },
+
     validatePrice() {
-      if (this.form.DONGIA < 1000) this.form.DONGIA = 1000;
+      this.errors.DONGIA = this.form.DONGIA < 1000 ? "Đơn giá phải ≥ 1000" : "";
     },
 
     validateSoQuyen() {
-      if (this.form.SOQUYEN < 0) this.form.SOQUYEN = 0;
+      this.errors.SOQUYEN =
+        this.form.SOQUYEN < 0 ? "Số quyển không được âm" : "";
     },
 
     validateNamXB() {
-      if (this.form.NAMXUATBAN < 0) this.form.NAMXUATBAN = 0;
+      this.errors.NAMXUATBAN =
+        this.form.NAMXUATBAN < 1900 ? "Năm xuất bản phải ≥ 1900" : "";
     },
+
     submit() {
+      if (!this.form.TENSACH.trim())
+        return alert("Tên sách không được để trống!");
+      if (!this.form.TACGIA.trim())
+        return alert("Tác giả không được để trống!");
+      if (!this.form.MANXB) return alert("Vui lòng chọn NXB!");
+
+      if (this.errors.DONGIA || this.errors.SOQUYEN || this.errors.NAMXUATBAN)
+        return alert("Vui lòng sửa lỗi trước khi lưu!");
+
       this.$emit("submit", {
         TENSACH: this.form.TENSACH,
         TACGIA: this.form.TACGIA,
@@ -85,7 +159,12 @@ export default {
         SOQUYEN: Number(this.form.SOQUYEN),
         NAMXUATBAN: Number(this.form.NAMXUATBAN),
         MANXB: Number(this.form.MANXB),
+        ANH: this.form.ANH || null,
       });
+
+      // Reset form và hiển thị thông báo
+      this.resetForm();
+      alert("Thêm sách thành công!");
     },
   },
 };
@@ -99,84 +178,72 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(3px);
 }
 
-/* MODAL BOX CHUẨN */
 .modal-box {
-  width: 480px;
-  background: #ffffff;
-  padding: 32px;
-  border-radius: 18px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  width: 500px;
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
 }
 
-/* TIÊU ĐỀ */
-h3 {
-  margin-bottom: 22px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #2b2d42;
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-/* INPUT & SELECT – THỐNG NHẤT 100% */
 input,
 select {
   width: 100%;
-  height: 46px; /* CHUẨN HOÁ CHIỀU CAO */
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #d4d7e1;
-  margin-bottom: 16px; /* KHOẢNG CÁCH ĐỀU */
-  background: #f9fbff; /* NỀN NHẸ ĐỀU 2 FORM */
-  font-size: 15px;
-  box-sizing: border-box; /* GIÚP CANH THẲNG HÀNG */
-  transition: 0.2s;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f9fbff;
+  margin-bottom: 4px;
 }
 
-/* CHỐNG INPUT LỆCH KHI FOCUS */
-input:focus,
-select:focus {
-  border-color: #4f7eff;
-  box-shadow: 0 0 0 2px rgba(79, 126, 255, 0.2);
-  outline: none;
+.error-input {
+  border: 1px solid #ff4d4d !important;
+  background: #ffecec !important;
 }
 
-/* BUTTONS */
+.error-text {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.preview-img {
+  width: 90px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}
+
 .modal-actions {
-  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 20px;
 }
 
 .save-btn {
-  background: linear-gradient(135deg, #4f7eff, #6a8bff);
-  color: #fff;
-  padding: 10px 22px;
-  border-radius: 10px;
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border-radius: 8px;
   border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.save-btn:hover {
-  background: linear-gradient(135deg, #3d6cf5, #5f80ff);
-  transform: translateY(-2px);
 }
 
 .cancel-btn {
-  background: #c5c5c5;
+  padding: 10px 20px;
+  background: #bbb;
   color: white;
-  padding: 10px 22px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: none;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.cancel-btn:hover {
-  background: #a8a8a8;
 }
 </style>
