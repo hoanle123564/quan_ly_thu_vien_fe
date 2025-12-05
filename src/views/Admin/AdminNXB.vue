@@ -122,7 +122,7 @@ export default {
     openAdd() {
       this.isEdit = false;
       this.showModal = true;
-      this.form = { _id: "", TenNXB: "", DiaChi: "" };
+      this.form = { TENNXB: "", DIACHI: "" };
     },
 
     openEdit(item) {
@@ -130,8 +130,8 @@ export default {
       this.showModal = true;
       this.form = {
         MANXB: item.MANXB,
-        TenNXB: item.TENNXB,
-        DiaChi: item.DIACHI,
+        TENNXB: item.TENNXB,
+        DIACHI: item.DIACHI,
       };
     },
 
@@ -163,15 +163,17 @@ export default {
 
       try {
         await axios.delete("http://localhost:3000/api/delete-NXB", {
-          data: { _id: item._id },
+          data: { MANXB: item.MANXB },
         });
 
         this.status = "Xóa thành công!";
         this.toast.success("Xóa nhà xuất bản thành công!");
         this.loadData();
       } catch (err) {
+        const errorMsg =
+          err.response?.data?.message || "Lỗi khi xóa nhà xuất bản!";
         this.status = "Lỗi khi xóa!";
-        this.toast.error("Lỗi khi xóa nhà xuất bản!");
+        this.toast.error(errorMsg);
       }
     },
   },
