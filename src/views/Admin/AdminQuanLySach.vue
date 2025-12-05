@@ -187,8 +187,10 @@ export default {
         this.toast.success("Xóa sách thành công!");
         await this.loadBooks();
       } catch (err) {
-        this.status = "Lỗi khi xóa sách!";
-        this.toast.error("Lỗi khi xóa sách!");
+        const errorMsg = err.response?.data?.message || "Lỗi khi xóa sách!";
+        this.status = "Lỗi khi xóa!";
+        this.toast.error(errorMsg);
+        console.error("Chi tiết lỗi:", err.response?.data);
       }
     },
   },

@@ -29,10 +29,14 @@
         <tbody>
           <tr v-for="item in paginated" :key="item._id">
             <td class="text-truncate">
-              {{ item.docgia.HOLOT }} {{ item.docgia.TEN }}
+              {{
+                item.docgia ? `${item.docgia.HOLOT} ${item.docgia.TEN}` : "—"
+              }}
             </td>
 
-            <td class="text-truncate">{{ item.sach.TENSACH }}</td>
+            <td class="text-truncate">
+              {{ item.sach ? item.sach.TENSACH : "—" }}
+            </td>
 
             <td>{{ format(item.NGAYMUON) }}</td>
 
