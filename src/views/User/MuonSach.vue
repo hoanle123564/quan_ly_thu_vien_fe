@@ -26,7 +26,7 @@
             disabled
           />
 
-          <label>Ngày trả (tự tính 14 ngày)</label>
+          <label>Ngày mượn tối đa (tự tính 7 ngày)</label>
           <input
             style="cursor: not-allowed"
             type="date"
@@ -97,10 +97,12 @@ export default {
 
         this.status = "Mượn sách thành công!";
         this.isError = false;
+        alert("Mượn sách thành công!");
         this.$router.push(`/user/muon-sach`);
       } catch (err) {
         this.status = err.response?.data?.message || "Không thể mượn sách";
         this.isError = true;
+        alert(err.response?.data?.message || "Lỗi! Không thể mượn sách.");
       }
     },
   },
