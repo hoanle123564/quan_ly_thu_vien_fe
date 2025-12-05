@@ -3,44 +3,54 @@
     <NavbarUser />
 
     <div class="profile-box">
-      <h2>Thông tin cá nhân</h2>
+      <h2 class="title">Thông tin cá nhân</h2>
 
+      <!-- Mã độc giả -->
       <div class="form-group">
         <label>Mã độc giả</label>
-        <input v-model="user.MADOCGIA" disabled />
+        <input v-model="user.MADOCGIA" disabled class="input disabled" />
       </div>
 
-      <div class="form-group">
-        <label>Họ lót</label>
-        <input v-model="user.HOLOT" />
+      <!-- Họ lót + Tên -->
+      <div class="row">
+        <div class="col">
+          <label>Họ lót</label>
+          <input v-model="user.HOLOT" class="input" />
+        </div>
+
+        <div class="col">
+          <label>Tên</label>
+          <input v-model="user.TEN" class="input" />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Tên</label>
-        <input v-model="user.TEN" />
+      <!-- Ngày sinh + Giới tính -->
+      <div class="row">
+        <div class="col">
+          <label>Ngày sinh</label>
+          <input type="date" v-model="user.NGAYSINH" class="input" />
+        </div>
+
+        <div class="col">
+          <label>Giới tính</label>
+          <select v-model="user.PHAI" class="input">
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+          </select>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Ngày sinh</label>
-        <input type="date" v-model="user.NGAYSINH" />
-      </div>
+      <!-- Địa chỉ + Số điện thoại -->
+      <div class="row">
+        <div class="col">
+          <label>Địa chỉ</label>
+          <input v-model="user.DIACHI" class="input" />
+        </div>
 
-      <div class="form-group">
-        <label>Giới tính</label>
-        <select v-model="user.PHAI">
-          <option value="Nam">Nam</option>
-          <option value="Nữ">Nữ</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Địa chỉ</label>
-        <input v-model="user.DIACHI" />
-      </div>
-
-      <div class="form-group">
-        <label>Số điện thoại</label>
-        <input v-model="user.DIENTHOAI" />
+        <div class="col">
+          <label>Số điện thoại</label>
+          <input v-model="user.DIENTHOAI" class="input" />
+        </div>
       </div>
 
       <button class="save-btn" @click="updateInfo">Lưu thay đổi</button>
@@ -114,27 +124,42 @@ export default {
 <style scoped>
 .profile-container {
   min-height: 100vh;
-  background: #f4f6fb;
-  padding-bottom: 40px;
+  background: linear-gradient(to bottom right, #eef2f7, #f7f9fc);
 }
 
 .profile-box {
-  width: 450px;
-  margin: 30px auto;
-  background: white;
-  padding: 35px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.4s ease;
+  width: 700px;
+  margin: auto;
+  background: #fff;
+  padding: 40px 45px 55px;
+  border-radius: 26px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.35s ease;
 }
 
-h2 {
+.title {
   text-align: center;
+  font-size: 28px;
+  font-weight: 700;
   margin-bottom: 25px;
+  color: #222;
+  letter-spacing: 0.5px;
 }
 
+/* FORM */
 .form-group {
-  margin-top: 15px;
+  margin-top: 18px;
+}
+
+/* ROW 2 CỘT */
+.row {
+  display: flex;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.col {
+  flex: 1;
 }
 
 label {
@@ -142,41 +167,64 @@ label {
   font-size: 14px;
   margin-bottom: 6px;
   display: block;
+  color: #444;
 }
 
-input,
-select {
+/* INPUTS */
+.input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-top: 4px;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #ccd3e0;
+  border-radius: 12px;
+  transition: 0.25s;
+  background: #fff;
 }
 
+.input:hover {
+  border-color: #8aa8ff;
+}
+
+.input:focus {
+  border-color: #4f7eff;
+  box-shadow: 0 0 0 3px rgba(79, 126, 255, 0.15);
+  outline: none;
+}
+
+.disabled {
+  background: #f1f3f7;
+  color: #777;
+  cursor: not-allowed;
+}
+
+/* SAVE BUTTON */
 .save-btn {
   width: 100%;
-  margin-top: 25px;
-  padding: 12px;
-  background: #4f7eff;
-  color: white;
+  margin-top: 30px;
+  padding: 14px 0;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 14px;
+  font-size: 17px;
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4f7eff, #355de5);
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.25s ease;
 }
 
 .save-btn:hover {
-  background: #3b63d3;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(53, 93, 229, 0.28);
 }
 
 .status {
   margin-top: 15px;
   text-align: center;
-  color: green;
+  color: #0abf30;
+  font-size: 15px;
 }
 
+/* FADE ANIMATION */
 @keyframes fadeIn {
   from {
     opacity: 0;
