@@ -1,6 +1,7 @@
 <template>
   <div class="user-home">
     <NavbarUser />
+    <NotificationReturn />
 
     <div class="banner">
       <h1>Xin chào {{ userName }} 👋</h1>
@@ -14,11 +15,11 @@
         <p>Chọn sách và gửi yêu cầu mượn nhanh chóng.</p>
       </div>
 
-      <div class="card" @click="goTo('tra-sach')">
+      <!-- <div class="card" @click="goTo('tra-sach')">
         <i class="fas fa-undo"></i>
         <h3>Trả sách</h3>
         <p>Gửi yêu cầu trả sách hoặc gia hạn.</p>
-      </div>
+      </div> -->
 
       <div class="card" @click="goTo('lich-su')">
         <i class="fas fa-history"></i>
@@ -37,9 +38,10 @@
 
 <script>
 import NavbarUser from "../../components/NavbarUser.vue";
+import NotificationReturn from "./NotificationUser.vue";
 
 export default {
-  components: { NavbarUser },
+  components: { NavbarUser, NotificationReturn },
 
   data() {
     return {

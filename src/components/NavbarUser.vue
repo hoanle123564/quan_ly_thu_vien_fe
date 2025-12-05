@@ -26,7 +26,6 @@
 
 <script>
 import store from "../store";
-
 export default {
   methods: {
     logout() {
