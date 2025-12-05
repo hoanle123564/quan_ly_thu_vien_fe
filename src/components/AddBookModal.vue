@@ -77,9 +77,15 @@
 
 <script>
 import axios from "axios";
+import { useToast } from "vue-toastification";
 
 export default {
   props: { show: Boolean },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -143,14 +149,23 @@ export default {
     },
 
     submit() {
-      if (!this.form.TENSACH.trim())
-        return alert("Tên sách không được để trống!");
-      if (!this.form.TACGIA.trim())
-        return alert("Tác giả không được để trống!");
-      if (!this.form.MANXB) return alert("Vui lòng chọn NXB!");
+      if (!this.form.TENSACH.trim()) {
+        this.toast.warning("Tên sách không được để trống!");
+        return;
+      }
+      if (!this.form.TACGIA.trim()) {
+        this.toast.warning("Tác giả không được để trống!");
+        return;
+      }
+      if (!this.form.MANXB) {
+        this.toast.warning("Vui lòng chọn NXB!");
+        return;
+      }
 
-      if (this.errors.DONGIA || this.errors.SOQUYEN || this.errors.NAMXUATBAN)
-        return alert("Vui lòng sửa lỗi trước khi lưu!");
+      if (this.errors.DONGIA || this.errors.SOQUYEN || this.errors.NAMXUATBAN) {
+        this.toast.warning("Vui lòng sửa lỗi trước khi lưu!");
+        return;
+      }
 
       this.$emit("submit", {
         TENSACH: this.form.TENSACH,
@@ -164,7 +179,7 @@ export default {
 
       // Reset form và hiển thị thông báo
       this.resetForm();
-      alert("Thêm sách thành công!");
+      this.toast.success("Thêm sách thành công!");
     },
   },
 };

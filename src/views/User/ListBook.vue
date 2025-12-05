@@ -1,27 +1,28 @@
 <template>
-  <div class="book-container">
+  <div>
     <NavbarUser />
+    <div class="book-container">
+      <h2 class="title">Danh sách sách</h2>
 
-    <h2 class="title">Danh sách sách</h2>
+      <!-- SEARCH INPUT -->
+      <div class="search-box">
+        <input
+          v-model="search"
+          placeholder="Tìm sách theo tên..."
+          class="search-input"
+        />
+      </div>
 
-    <!-- 🔍 SEARCH INPUT -->
-    <div class="search-box">
-      <input
-        v-model="search"
-        placeholder="Tìm sách theo tên..."
-        class="search-input"
-      />
-    </div>
+      <div class="book-list">
+        <div class="book-card" v-for="item in filteredBooks" :key="item.MASACH">
+          <img :src="item.ANH" class="book-img" alt="book cover" />
+          <h3 class="book-title">{{ item.TENSACH }}</h3>
+          <p>Tác giả: {{ item.TACGIA }}</p>
+          <p>Nhà XB: {{ item.TENNXB }}</p>
+          <p>Số lượng: {{ item.SOQUYEN }}</p>
 
-    <div class="book-list">
-      <div class="book-card" v-for="item in filteredBooks" :key="item.MASACH">
-        <img :src="item.ANH" class="book-img" alt="book cover" />
-        <h3 class="book-title">{{ item.TENSACH }}</h3>
-        <p>Tác giả: {{ item.TACGIA }}</p>
-        <p>Nhà XB: {{ item.TENNXB }}</p>
-        <p>Số lượng: {{ item.SOQUYEN }}</p>
-
-        <button class="borrow-btn" @click="muon(item)">Mượn sách</button>
+          <button class="borrow-btn" @click="muon(item)">Mượn sách</button>
+        </div>
       </div>
     </div>
   </div>

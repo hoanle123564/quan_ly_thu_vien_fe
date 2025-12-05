@@ -2,7 +2,7 @@
   <div class="detail-container">
     <NavbarUser />
 
-    <!-- 🔍 SEARCH BOX -->
+    <!--  SEARCH BOX -->
     <div class="search-bar">
       <input
         v-model="searchText"

@@ -55,6 +55,7 @@ export default {
 .logo {
   text-align: center;
   margin-bottom: 30px;
+  font-size: 35px;
 }
 
 .menu {

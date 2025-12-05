@@ -84,9 +84,15 @@
 <script>
 import axios from "axios";
 import NavbarAdmin from "../../components/NavbarAdmin.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { NavbarAdmin },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -155,11 +161,11 @@ export default {
         });
 
         this.status = "Đã xác nhận trả sách!";
-        alert("Xác nhận trả sách thành công!");
+        this.toast.success("Xác nhận trả sách thành công!");
         item.DATRASACH = true;
       } catch {
         this.status = "Lỗi trong quá trình cập nhật!";
-        alert("Lỗi khi xác nhận trả sách!");
+        this.toast.error("Lỗi khi xác nhận trả sách!");
       }
     },
   },

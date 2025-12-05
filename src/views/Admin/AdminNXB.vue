@@ -67,9 +67,15 @@
 import axios from "axios";
 import SidebarAdmin from "../../components/NavbarAdmin.vue";
 import AddNXBModal from "../../components/AddNXBModal.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { SidebarAdmin, AddNXBModal },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -137,10 +143,10 @@ export default {
       try {
         if (this.isEdit) {
           await axios.patch("http://localhost:3000/api/edit-NXB", data);
-          alert("Cập nhật nhà xuất bản thành công!");
+          this.toast.success("Cập nhật nhà xuất bản thành công!");
         } else {
           await axios.post("http://localhost:3000/api/add-NXB", data);
-          alert("Thêm nhà xuất bản thành công!");
+          this.toast.success("Thêm nhà xuất bản thành công!");
         }
 
         this.status = "Lưu thành công!";
@@ -148,7 +154,7 @@ export default {
         this.loadData();
       } catch (err) {
         this.status = "Lỗi khi lưu!";
-        alert("Lỗi khi lưu nhà xuất bản!");
+        this.toast.error("Lỗi khi lưu nhà xuất bản!");
       }
     },
 
@@ -161,11 +167,11 @@ export default {
         });
 
         this.status = "Xóa thành công!";
-        alert("Xóa nhà xuất bản thành công!");
+        this.toast.success("Xóa nhà xuất bản thành công!");
         this.loadData();
       } catch (err) {
         this.status = "Lỗi khi xóa!";
-        alert("Lỗi khi xóa nhà xuất bản!");
+        this.toast.error("Lỗi khi xóa nhà xuất bản!");
       }
     },
   },

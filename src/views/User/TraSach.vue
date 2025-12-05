@@ -33,9 +33,15 @@
 <script>
 import axios from "axios";
 import NavbarUser from "../../components/NavbarUser.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { NavbarUser },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -90,11 +96,11 @@ export default {
         });
 
         this.status = "Trả sách thành công!";
-        alert("Trả sách thành công!");
+        this.toast.success("Trả sách thành công!");
         this.loadBorrowedBooks();
       } catch {
         this.status = "Lỗi! Không thể trả sách.";
-        alert("Lỗi! Không thể trả sách.");
+        this.toast.error("Lỗi! Không thể trả sách.");
       }
     },
   },

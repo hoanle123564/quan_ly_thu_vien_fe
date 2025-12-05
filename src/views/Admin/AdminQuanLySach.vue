@@ -87,9 +87,15 @@ import axios from "axios";
 import SidebarAdmin from "../../components/NavbarAdmin.vue";
 import AddBookModal from "../../components/AddBookModal.vue";
 import EditBookModal from "../../components/EditBookModal.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { SidebarAdmin, AddBookModal, EditBookModal },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -147,7 +153,7 @@ export default {
         await this.loadBooks();
       } catch (err) {
         this.status = "Lỗi khi thêm sách!";
-        alert("Lỗi khi thêm sách!");
+        this.toast.error("Lỗi khi thêm sách!");
       }
     },
 
@@ -160,12 +166,12 @@ export default {
       try {
         await axios.patch("http://localhost:3000/api/edit-sach", data);
         this.status = "Cập nhật thành công!";
-        alert("Cập nhật sách thành công!");
+        this.toast.success("Cập nhật sách thành công!");
         this.showEdit = false;
         await this.loadBooks();
       } catch (err) {
         this.status = "Lỗi cập nhật!";
-        alert("Lỗi khi cập nhật sách!");
+        this.toast.error("Lỗi khi cập nhật sách!");
       }
     },
 
@@ -178,11 +184,11 @@ export default {
         });
 
         this.status = "Xóa thành công!";
-        alert("Xóa sách thành công!");
+        this.toast.success("Xóa sách thành công!");
         await this.loadBooks();
       } catch (err) {
         this.status = "Lỗi khi xóa sách!";
-        alert("Lỗi khi xóa sách!");
+        this.toast.error("Lỗi khi xóa sách!");
       }
     },
   },

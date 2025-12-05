@@ -68,9 +68,15 @@
 import axios from "axios";
 import SidebarAdmin from "../../components/NavbarAdmin.vue";
 import DocGiaForm from "./DocGiaForm.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { SidebarAdmin, DocGiaForm },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -112,6 +118,7 @@ export default {
       const res = await axios.get("http://localhost:3000/api/get-all-docgia");
 
       this.docGiaList = res.data.data;
+      console.log("this.docGiaList", this.docGiaList);
     },
 
     openAdd() {
@@ -128,12 +135,16 @@ export default {
       if (!confirm("Bạn có chắc muốn xóa độc giả này?")) return;
 
       try {
-        await axios.delete(`http://localhost:3000/api/delete-docgia/${id}`);
-        alert("Xóa độc giả thành công!");
+        let res = await axios.delete(
+          `http://localhost:3000/api/delete-docgia/${id}`
+        );
+        console.log("res", res);
+
+        this.toast.success("Xóa độc giả thành công!");
         await this.fetchDocGia();
       } catch (error) {
         const msg = error.response?.data?.message || "Không thể xóa độc giả!";
-        alert(msg);
+        this.toast.error(msg);
       }
     },
   },

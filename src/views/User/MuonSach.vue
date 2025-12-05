@@ -46,9 +46,15 @@
 <script>
 import axios from "axios";
 import NavbarUser from "../../components/NavbarUser.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   components: { NavbarUser },
+
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -73,7 +79,7 @@ export default {
     setDates() {
       const today = new Date();
       const due = new Date();
-      due.setDate(today.getDate() + 14);
+      due.setDate(today.getDate() + 7);
 
       const f = (d) => d.toISOString().slice(0, 10);
 
@@ -82,6 +88,12 @@ export default {
     },
 
     async handleMuon() {
+      // Kiểm tra số lượng mượn
+      if (!this.soLuong || this.soLuong <= 0) {
+        this.toast.warning("Số lượng mượn phải lớn hơn 0!");
+        return;
+      }
+
       const token = localStorage.getItem("user_token");
       const decoded = JSON.parse(atob(token.split(".")[1]));
       let data = {
@@ -95,14 +107,12 @@ export default {
       try {
         await axios.post("http://localhost:3000/api/muon-sach", data);
 
-        this.status = "Mượn sách thành công!";
-        this.isError = false;
-        alert("Mượn sách thành công!");
+        this.toast.success("Mượn sách thành công!");
         this.$router.push(`/user/muon-sach`);
       } catch (err) {
-        this.status = err.response?.data?.message || "Không thể mượn sách";
-        this.isError = true;
-        alert(err.response?.data?.message || "Lỗi! Không thể mượn sách.");
+        this.toast.error(
+          err.response?.data?.message || "Lỗi! Không thể mượn sách."
+        );
       }
     },
   },
