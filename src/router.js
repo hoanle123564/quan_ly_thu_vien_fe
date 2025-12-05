@@ -11,6 +11,10 @@ import TraSach from "./views/User/TraSach.vue";
 import LichSuMuon from "./views/User/LichSuMuon.vue";
 import AdminQuanLySach from "./views/Admin/AdminQuanLySach.vue";
 import nxb from "./views/Admin/AdminNXB.vue";
+import MuonSach from "./views/User/MuonSach.vue";
+import QuanLyDocGia from "./views/Admin/QuanLyDocGia.vue";
+import AdminDashboard from "./views/Admin/AdminDashboard.vue";
+import AdminMuonTra from "./views/Admin/AdminMuonTra.vue";
 // import store from "./store";
 
 const routes = [
@@ -23,12 +27,16 @@ const routes = [
   { path: "/user/muon-sach", component: ListBook },
   { path: "/user/tra-sach", component: TraSach },
   { path: "/user/lich-su", component: LichSuMuon },
+  { path: "/user/muon-sach/:id", component: MuonSach },
 
   // ADMIN ZONE
   { path: "/admin/login", component: LoginAdmin },
   { path: "/admin/dashboard", component: HomeAdmin },
   { path: "/admin/books", component: AdminQuanLySach },
   { path: "/admin/nxb", component: nxb },
+  { path: "/admin/readers", component: QuanLyDocGia },
+  { path: "/admin/statistic", component: AdminDashboard },
+  { path: "/admin/muon-tra", component: AdminMuonTra },
 ];
 
 const router = createRouter({
