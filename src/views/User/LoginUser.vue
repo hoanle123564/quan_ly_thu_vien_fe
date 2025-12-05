@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
     <div class="auth-box">
-      <h2>Đăng nhập User</h2>
+      <h2>Đăng nhập Độc giả</h2>
 
       <input v-model="username" placeholder="Tên đăng nhập" />
       <input v-model="password" type="password" placeholder="Mật khẩu" />
