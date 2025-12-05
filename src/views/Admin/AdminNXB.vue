@@ -8,7 +8,7 @@
         <button class="add-btn" @click="openAdd">+ Thêm NXB</button>
       </div>
 
-      <!-- 🔍 SEARCH BOX -->
+      <!-- SEARCH BOX -->
       <div class="search-box">
         <input
           v-model="searchText"
@@ -28,8 +28,8 @@
         </thead>
 
         <tbody>
-          <tr v-for="(item, index) in filteredNXB" :key="item._id">
-            <td>{{ index + 1 }}</td>
+          <tr v-for="(item, index) in paginatedData" :key="item._id">
+            <td>{{ (page - 1) * perPage + index + 1 }}</td>
             <td>{{ item.TENNXB }}</td>
             <td>{{ item.DIACHI }}</td>
             <td>
@@ -40,6 +40,16 @@
         </tbody>
       </table>
 
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <button :disabled="page === 1" @click="page--">«</button>
+
+        <span>Trang {{ page }} / {{ totalPages }}</span>
+
+        <button :disabled="page >= totalPages" @click="page++">»</button>
+      </div>
+
+      <!-- MODAL -->
       <AddNXBModal
         :show="showModal"
         :isEdit="isEdit"
@@ -69,6 +79,10 @@ export default {
       isEdit: false,
       form: { _id: "", TenNXB: "", DiaChi: "" },
       status: "",
+
+      // pagination
+      page: 1,
+      perPage: 10,
     };
   },
 
@@ -77,6 +91,15 @@ export default {
       return this.nxb.filter((item) =>
         item.TENNXB.toLowerCase().includes(this.searchText.toLowerCase())
       );
+    },
+
+    totalPages() {
+      return Math.ceil(this.filteredNXB.length / this.perPage);
+    },
+
+    paginatedData() {
+      const start = (this.page - 1) * this.perPage;
+      return this.filteredNXB.slice(start, start + this.perPage);
     },
   },
 
@@ -111,38 +134,56 @@ export default {
     },
 
     async save(data) {
-      if (this.isEdit)
-        await axios.patch("http://localhost:3000/api/edit-NXB", data);
-      else await axios.post("http://localhost:3000/api/add-NXB", data);
+      try {
+        if (this.isEdit) {
+          await axios.patch("http://localhost:3000/api/edit-NXB", data);
+          alert("Cập nhật nhà xuất bản thành công!");
+        } else {
+          await axios.post("http://localhost:3000/api/add-NXB", data);
+          alert("Thêm nhà xuất bản thành công!");
+        }
 
-      this.status = "Lưu thành công!";
-      this.showModal = false;
-      this.loadData();
+        this.status = "Lưu thành công!";
+        this.showModal = false;
+        this.loadData();
+      } catch (err) {
+        this.status = "Lỗi khi lưu!";
+        alert("Lỗi khi lưu nhà xuất bản!");
+      }
     },
 
     async deleteNXB(item) {
       if (!confirm("Xóa nhà xuất bản này?")) return;
 
-      await axios.delete("http://localhost:3000/api/delete-NXB", {
-        data: { _id: item._id },
-      });
+      try {
+        await axios.delete("http://localhost:3000/api/delete-NXB", {
+          data: { _id: item._id },
+        });
 
-      this.status = "Xóa thành công!";
-      this.loadData();
+        this.status = "Xóa thành công!";
+        alert("Xóa nhà xuất bản thành công!");
+        this.loadData();
+      } catch (err) {
+        this.status = "Lỗi khi xóa!";
+        alert("Lỗi khi xóa nhà xuất bản!");
+      }
     },
   },
 };
 </script>
+
 <style scoped>
 .admin-layout {
   display: flex;
   background: #f4f6fb;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .nxb-container {
   flex: 1;
   padding: 30px;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .header {
@@ -161,8 +202,6 @@ export default {
   font-weight: 600;
 }
 
-/* TABLE UI */
-/* TABLE UI */
 .table {
   width: 100%;
   background: white;
@@ -170,7 +209,7 @@ export default {
   overflow: hidden;
   border-collapse: collapse;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  table-layout: fixed; /* QUAN TRỌNG: Chia cột đều */
+  table-layout: fixed;
 }
 
 thead tr {
@@ -190,30 +229,10 @@ td {
   border-bottom: 1px solid #eee;
 }
 
-/* CHIA LẠI TỈ LỆ CỘT – ĐỀU & ĐẸP */
-th:nth-child(1),
-td:nth-child(1) {
-  width: 8%;
-} /* STT */
-th:nth-child(2),
-td:nth-child(2) {
-  width: 35%;
-} /* Tên NXB */
-th:nth-child(3),
-td:nth-child(3) {
-  width: 30%;
-} /* Địa chỉ */
-th:nth-child(4),
-td:nth-child(4) {
-  width: 22%;
-} /* Hành động */
-
-/* HOVER ROW */
 tbody tr:hover {
   background: #f7faff;
 }
 
-/* BUTTONS */
 .edit-btn,
 .delete-btn {
   padding: 8px 14px;
@@ -242,6 +261,7 @@ tbody tr:hover {
 .delete-btn:hover {
   background: #e33c3c;
 }
+
 .search-box {
   margin-bottom: 16px;
 }
@@ -252,5 +272,34 @@ tbody tr:hover {
   border: 1px solid #d0d7e6;
   border-radius: 8px;
   font-size: 14px;
+}
+
+/* PAGINATION */
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #4f7eff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pagination button:disabled {
+  background: #b4c4ff;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-weight: 600;
+  font-size: 15px;
 }
 </style>
