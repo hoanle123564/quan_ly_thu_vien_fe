@@ -16,26 +16,30 @@
       <table class="table">
         <thead>
           <tr>
-            <th style="width: 13%">Độc giả</th>
-            <th style="width: 22%">Sách</th>
-            <th style="width: 11%">Ngày mượn</th>
-            <th style="width: 11%">Ngày trả</th>
-            <th style="width: 10%">Trạng thái</th>
-            <th style="width: 12%">Phạt</th>
-            <th style="width: 13%">Hành động</th>
+            <th>Độc giả</th>
+            <th>Sách</th>
+            <th>Ngày mượn</th>
+            <th>Ngày trả</th>
+            <th>Trạng thái</th>
+            <th>Phạt</th>
+            <th>Hành động</th>
           </tr>
         </thead>
 
         <tbody>
           <tr v-for="item in paginated" :key="item._id">
+            <!-- Độc giả -->
             <td class="text-truncate">
               {{
-                item.docgia ? `${item.docgia.HOLOT} ${item.docgia.TEN}` : "—"
+                item.docgia
+                  ? item.docgia.HOLOT + " " + item.docgia.TEN
+                  : "Độc giả đã bị xóa"
               }}
             </td>
 
+            <!-- Sách -->
             <td class="text-truncate">
-              {{ item.sach ? item.sach.TENSACH : "—" }}
+              {{ item.sach ? item.sach.TENSACH : "Sách đã bị xóa" }}
             </td>
 
             <td>{{ format(item.NGAYMUON) }}</td>
@@ -51,7 +55,6 @@
               </span>
             </td>
 
-            <!-- ⭐ Phạt: tính nếu chưa trả -->
             <td>
               <span class="fine-text">{{ formatMoney(getFine(item)) }}</span>
             </td>
@@ -69,10 +72,10 @@
         </tbody>
       </table>
 
-      <!-- PAGINATION -->
+      <!-- Pagination -->
       <div class="pagination-container">
         <div class="pagination">
-          <button :disabled="page == 1" @click="page--">«</button>
+          <button :disabled="page === 1" @click="page--">«</button>
 
           <span>Trang {{ page }} / {{ totalPages }}</span>
 
@@ -109,14 +112,18 @@ export default {
   },
 
   async mounted() {
-    const res = await axios.get("http://localhost:3000/api/get-all-theodoi");
-    this.list = res.data.data;
+    await this.loadData();
   },
 
   computed: {
     filtered() {
-      if (!this.filter) return this.list;
-      return this.list.filter((i) => i.DATRASACH === (this.filter === "true"));
+      return this.list.filter((i) => {
+        // loại bỏ bản ghi rác
+        if (!i.docgia || !i.sach) return false;
+
+        if (!this.filter) return true;
+        return i.DATRASACH === (this.filter === "true");
+      });
     },
 
     totalPages() {
@@ -130,27 +137,26 @@ export default {
   },
 
   methods: {
+    async loadData() {
+      const res = await axios.get("http://localhost:3000/api/get-all-theodoi");
+      this.list = res.data.data || [];
+    },
+
     format(date) {
       return date ? date.split("T")[0] : "—";
     },
 
-    // ⭐ Hàm tính phạt nếu chưa trả
     getFine(item) {
-      if (item.DATRASACH === true) {
-        return item.PHAT || 0;
-      }
+      if (item.DATRASACH) return item.PHAT || 0;
 
-      const ngayMuon = new Date(item.NGAYMUON);
-      const today = new Date();
+      const due = new Date(item.NGAYMUON);
+      due.setDate(due.getDate() + 7);
 
-      ngayMuon.setDate(ngayMuon.getDate() + 7);
+      const now = new Date();
+      if (now <= due) return 0;
 
-      if (today <= ngayMuon) return 0;
-
-      const diffTime = today - ngayMuon;
-      const diffDay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-      return diffDay * 5000; // 5.000đ / ngày
+      const diffDays = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+      return diffDays * 5000;
     },
 
     formatMoney(amount) {
@@ -164,11 +170,9 @@ export default {
           MASACH: item.MASACH,
         });
 
-        this.status = "Đã xác nhận trả sách!";
         this.toast.success("Xác nhận trả sách thành công!");
-        item.DATRASACH = true;
+        await this.loadData(); // reload dữ liệu mới → tránh lỗi null
       } catch {
-        this.status = "Lỗi trong quá trình cập nhật!";
         this.toast.error("Lỗi khi xác nhận trả sách!");
       }
     },

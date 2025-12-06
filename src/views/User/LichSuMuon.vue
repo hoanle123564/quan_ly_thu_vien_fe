@@ -28,7 +28,8 @@
 
         <tbody>
           <tr v-for="item in paginatedList" :key="item._id">
-            <td>{{ item.sach.TENSACH }}</td>
+            <td>{{ item.sach ? item.sach.TENSACH : "Sách đã bị xóa" }}</td>
+
             <td>{{ item.sach.TACGIA }}</td>
             <td>{{ item.SOLUONG }}</td>
 
@@ -83,11 +84,13 @@ export default {
 
   computed: {
     filteredList() {
-      return this.list.filter((item) =>
-        item.sach.TENSACH.toLowerCase().includes(this.search.toLowerCase())
-      );
+      return this.list.filter((item) => {
+        if (!item.sach) return false; // tránh lỗi null
+        return item.sach.TENSACH.toLowerCase().includes(
+          this.search.toLowerCase()
+        );
+      });
     },
-
     totalPages() {
       return Math.ceil(this.filteredList.length / this.pageSize) || 1;
     },
